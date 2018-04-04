@@ -82,18 +82,22 @@ var allBuildings = firebase.database().ref();
 var hour = new Date().getHours() + 1;
 console.log('HOUR: ' + hour);
 var allClassrooms = [];
+
 allBuildings.on('value', (data) => {
+
     var b = data.val();
 var keys = Object.keys(b);
 // LOOP THROUGH ALL ENTRIES
 for(var i = 0; i < keys.length; i++) {
     var k = keys[i];
-    //TODO:  LOOP PER BUILDING KEY THROUGH CLASSROOMS
-    if(b[k][hours[hour-7]] === 0){
-        //TODO: INSERT OBJECTS THAT ARE LABELLED BY BUILDING, AND VALUE IS A LOT OF CLASSROOM INFOS
-        b[k].freeuntil = freeUntil(b[k], hours);
-        allClassrooms.push(b[k]);
-    }
+    //  Object.keys(b[k])[0].freeuntil = freeUntil(Object.keys(b[k])[0], hours);
+    // console.log('First classroom: ' + Object.keys(b[k])[0].classroom);
+    //console.log('B[K]: ' + b[k]);
+    //TODO: Add free until to each key within each key...  //b[k].freeuntil = freeUntil(b[k], hours);
+
+    //if(b[k][hours[hour-7]] === 0){
+    allClassrooms.push(b[k]);
+    //}
 }
 response.json(allClassrooms);
 }, (err)=>{if(err) throw err;})
@@ -131,7 +135,7 @@ console.log('got child item');
 //TODO: add all features of the classroom
 newPostRef.set({building: item.building,
     classroom: item.room,
-    hours: [{"seven": item.seven}, {"eight" : item.eight}, {"nine":item.nine}]});
+    hours: [{"seven": item.seven}, {"eight" : item.eight}, {"nine":item.nine}, {"ten":item.ten}, {"eleven":item.eleven}, {"twelve":item.twelve}, {"one":item.one}, {"two":item.two}]});
 });
 
 });
