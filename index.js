@@ -81,26 +81,36 @@ var admin = require("firebase-admin");
 var allBuildings = firebase.database().ref();
 var hour = new Date().getHours() + 1;
 console.log('HOUR: ' + hour);
-var allClassrooms = [];
+var allClassrooms = {};
+var building = "";
+allBuildings.on('value', (snapshot) =>{
+    console.log("snapshot = " + snapshot);
+snapshot.forEach((snapshot1) => {
+    var perBuilding = [];
 
-allBuildings.on('value', (data) => {
-
-    var b = data.val();
-var keys = Object.keys(b);
-// LOOP THROUGH ALL ENTRIES
-for(var i = 0; i < keys.length; i++) {
-    var k = keys[i];
-    //  Object.keys(b[k])[0].freeuntil = freeUntil(Object.keys(b[k])[0], hours);
-    // console.log('First classroom: ' + Object.keys(b[k])[0].classroom);
-    //console.log('B[K]: ' + b[k]);
-    //TODO: Add free until to each key within each key...  //b[k].freeuntil = freeUntil(b[k], hours);
-
-    //if(b[k][hours[hour-7]] === 0){
-    allClassrooms.push(b[k]);
-    //}
-}
+console.log("Snapshot1 key = " + snapshot1.key); // e.g. "http://..."
+snapshot1.forEach((childSnapshot)=> {
+    console.log("childkey classroom = " + childSnapshot.val().classroom);
+building = childSnapshot.val().building // e.g. "20170116"
+var classroom = JSON.stringify(childSnapshot.val());
+var JC = JSON.parse(classroom);
+JC["freeuntil"] = freeUntil(childSnapshot.val(), hours);
+console.log("classroom = " + JSON.stringify(JC));
+childSnapshot.forEach((grandchildSnapshot) =>{
+    console.log("grandchild key = " + grandchildSnapshot.key); // e.g. "-Kb9...gkE"
+});
+console.log("JC = "+  JC)
+perBuilding.push(JC);
+console.log("all classrooms = " + allClassrooms);
+console.log("STRINGIFY: " + JSON.stringify(JC));
+});
+console.log("PER BUILDING = "  + perBuilding);
+allClassrooms[building] = perBuilding;
+});
+console.log("the end ALL CLASSROOMS: " + allClassrooms);
 response.json(allClassrooms);
-}, (err)=>{if(err) throw err;})
+});
+
 });
 
 /* FUNCTION FOR SERVER TO FILL LOCAL DATABASE EACH DAY  */
@@ -179,4 +189,3 @@ newPostRef.set({building: item.building,
 
 
 })
-
