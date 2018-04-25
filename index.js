@@ -30,34 +30,35 @@ hours[11] = "six";
 
 exports.classroomsByBuilding = functions.https.onRequest((request, response) => {
 
-    //Takes the child that matches the request building
-    var wantedBuilding = firebase.database().ref().child(request.body.building);
-var allClassrooms = [];
+    var wantedBuilding = firebase.database().ref().child(request.body.building).orderByKey();
+// dbRef.on('value', snapshot => {
+//     snapshot.forEach(childSnapshot => {
+//        console.log(childSnapshot.key);
+//        arrResult.push(childSnapshot.key);
+//     });
+
+//     console.log(arrResult);
+var allClassrooms = {};
 //TODO: Check what hour is returned (What time zone it uses)
 var hour = new Date().getHours() + 1;
 //Retrieves all the elements in the building child retrieved
 wantedBuilding.on('value', (data) => {
-    //Returns the actual object
-    var b = data.val();
-//gets the keys for each classroom in the building object
-var keys = Object.keys(b);
-// LOOP THROUGH ALL ENTRIES
-for(var i = 0; i < keys.length; i++) {
-    var k = keys[i];
-    //CurrentClassroom is classroom object
-    var currentClassroom = b[k];
-    //check if classroom is free at current hour - minus 7 to match index in array
-    if(currentClassroom[hours[hour-7]] === 0){
-        //find until when the classroom is not taken by a lesson
-        currentClassroom.freeuntil = freeUntil(currentClassroom);
-        //add the classroom to the list to return
-        allClassrooms.push(currentClassroom);
-    }
-}
-//return the array of classrooms
+    var perBuilding = [];
+data.forEach((cr) => {
+    var classroom = JSON.stringify(cr.val());
+var JC = JSON.parse(classroom);
+//TODO: CHECK THAT CLASS IS FREE AT THE MOMENT
+JC["freeuntil"] = freeUntil(cr.val(), hours);
+console.log("classroom = " + JSON.stringify(JC));
+perBuilding.push(JC);
+});
+allClassrooms[request.body.building] = perBuilding;
+console.log(allClassrooms);
 response.json(allClassrooms);
-}, (err)=>{if(err) throw err;})
-})
+
+
+});
+});
 
 //TODO FIX LOGIC
 function freeUntil(classroom) {
@@ -135,22 +136,31 @@ var saveResult;
 MongoClient.connect("mongodb://nirchook:agent777@ds125198.mlab.com:25198/unispace",  (err,database) => {
     if(err) throw err;
 const myAwesomeDB = database.db('unispace');
-myAwesomeDB.collection("Classrooms_" + weekday[day]).find({}, (err, result)  =>{
+console.log("connected to mongo");
+myAwesomeDB.collection("Classrooms_" + "Sunday").find({}, (err, result)  =>{
     if(err) throw err;
 result.forEach((item) => {
-    console.log(item.building);
+    console.log("found items");
 //Retreives the correct building to add the classroom to it as a child
-var newPostRef = ref.child(item.building).push();
-console.log('got child item');
+//var newPostRef = ref.child(item.building).push();
+console.log('building = ' + item.building);
 //TODO: add all features of the classroom
-newPostRef.set({building: item.building,
+ref.child(item.building).child(item.room).set({building: item.building,
     classroom: item.room,
-    hours: [{"seven": item.seven}, {"eight" : item.eight}, {"nine":item.nine}, {"ten":item.ten}, {"eleven":item.eleven}, {"twelve":item.twelve}, {"one":item.one}, {"two":item.two}]});
+    hours: { seven : item.seven, eight : item.eight, nine :item.nine, ten: item.ten , eleven : item.eleven, twelve :item.twelve, one : item.one , two : item.two }
+
 });
+c = ["seven", "eight","nine","ten","eleven","twelve","one","two"]
+c.foreach((child) => {
+    ref.child(item.building).child('hours').child(child).set(item[child]);
+
+})
 
 });
 });
-})
+});
+response.send("YALLA WOOPEE");
+});
 
 //TEST FUNCTION - FILL WITH WHATEVER AND CAN TEST WITH URL
 exports.testIt = functions.https.onRequest((request, response) => {
@@ -186,6 +196,5 @@ newPostRef.set({building: item.building,
 
 });
 });
+});
 
-
-})
