@@ -179,6 +179,7 @@ var ref = firebase.database().ref();
 console.log('got firebase ref');
 var MongoClient = require('mongodb').MongoClient;
 var saveResult;
+//Done
 MongoClient.connect("mongodb://nirchook:agent777@ds125198.mlab.com:25198/unispace",  (err,database) => {
     if(err) throw err;
 const myAwesomeDB = database.db('unispace');
