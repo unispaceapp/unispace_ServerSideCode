@@ -150,7 +150,7 @@ ref.child(item.building).child(item.room).set({building: item.building,
     hours: { seven : item.seven, eight : item.eight, nine :item.nine, ten: item.ten , eleven : item.eleven, twelve :item.twelve, one : item.one , two : item.two }
 
 });
-c = ["seven", "eight","nine","ten","eleven","twelve","one","two"]
+c = ["seven", "eight","nine","ten","eleven","twelve","one","two", "three", "four","five","six"]
 c.foreach((child) => {
     ref.child(item.building).child('hours').child(child).set(item[child]);
 
@@ -159,7 +159,7 @@ c.foreach((child) => {
 });
 });
 });
-response.send("YALLA WOOPEE");
+response.send("End of daily update");
 });
 
 //TEST FUNCTION - FILL WITH WHATEVER AND CAN TEST WITH URL
@@ -179,7 +179,6 @@ var ref = firebase.database().ref();
 console.log('got firebase ref');
 var MongoClient = require('mongodb').MongoClient;
 var saveResult;
-//Done
 MongoClient.connect("mongodb://nirchook:agent777@ds125198.mlab.com:25198/unispace",  (err,database) => {
     if(err) throw err;
 const myAwesomeDB = database.db('unispace');
